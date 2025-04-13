@@ -1,0 +1,23 @@
+{
+  "name": "vidtweet",
+  "version": "1.0.0",
+  "description": "A MERN Project ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sujallunawat/VidTweet.git"
+  },
+  "author": "Sujal Kailash Lunawat",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sujallunawat/VidTweet/issues"
+  },
+  "homepage": "https://github.com/sujallunawat/VidTweet#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
