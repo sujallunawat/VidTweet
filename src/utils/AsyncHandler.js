@@ -8,3 +8,5 @@ const AsyncHandler = (requestHandeler) => async (req , res , next) => {
         next(err);
     }
 }
+
+export {AsyncHandler}

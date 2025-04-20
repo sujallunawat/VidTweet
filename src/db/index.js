@@ -9,7 +9,7 @@ const ConnectionDB = async()=>{
         console.log(`DB CONNECTED SUCCESSFULLY`);
         
     }catch(error){
-        console.error(`Error is Connecting DB ${error}`)
+        console.error(`Error is Connecting DB : ${error}`)
     }
 }
 
