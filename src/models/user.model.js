@@ -67,7 +67,7 @@ UserSchema.methods.genrateAccessToken = function () {
         email : this.email,
         userName : this.userName,
         fullName : this.fullName,
-    },process.enc.ACCESS_TOKEN_SECRET,{
+    },process.env.ACCESS_TOKEN_SECRET,{
         expiresIn : process.env.ACCESS_TOKEN_EXPIRY
     })
 }
@@ -77,7 +77,7 @@ UserSchema.methods.refreshAccessToken = function () {
     jwt.sign({
         _id : this._id ,
 
-    },process.enc.REFRESH_TOKEN_SECRET,{
+    },process.env.REFRESH_TOKEN_SECRET,{
         expiresIn : process.env.REFRESH_TOKEN_EXPIRY
     })
 }
