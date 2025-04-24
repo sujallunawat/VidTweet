@@ -5,9 +5,11 @@ import ConnectionDB from './db/index.js'
 import { app } from './app.js'
 
 // require('dotenv').config({
-//     // path: './env'
+//     path: './.env'
 // })
-dotenv.config()
+dotenv.config({
+    path:'./.env'
+})
 const PORT = process.env.PORT || 3010
 ConnectionDB().then(
     app.listen(PORT , ()=>{
