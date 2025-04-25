@@ -10,19 +10,24 @@ async function genrateAccessAndRefreshToken(id) {
   try {
     const User = await user.findById(id);
 
+  
+
     const accessToken =  User.genrateAccessToken();
     const refreshToken = User.refreshAccessToken();
+
+
+  
    
     User.refreshToken = refreshToken;
-    User.save(
+    await User.save(
      {
        validateBeforeSave: false,
      }
     );
+
        return {accessToken , refreshToken } 
   } catch (error) {
     throw new ApiError(500 , `Failed to genrate accessToken or refreshToken : ${error}`);
-    return null
   }
 
  
@@ -136,7 +141,10 @@ const loginUser = AsyncHandler(async(req , res) =>{
    }
 
 
-  const {accessToken , refreshToken} = genrateAccessAndRefreshToken(User._id);
+  const {accessToken , refreshToken} = await genrateAccessAndRefreshToken(User._id);
+
+
+  console.log(accessToken , " <----")
 
   const options = {
     httpOnly:true,

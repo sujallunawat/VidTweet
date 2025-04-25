@@ -1,6 +1,10 @@
 import mongoose ,{Schema} from "mongoose";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import dotenv from 'dotenv'
+dotenv.config({
+    path:'./.env'
+})
 
 
 const UserSchema = new Schema({
@@ -62,7 +66,7 @@ UserSchema.methods.isCorrectPassword = async function (password) {
 
 UserSchema.methods.genrateAccessToken = function () {
 
-    jwt.sign({
+    return jwt.sign({
         _id : this._id ,
         email : this.email,
         userName : this.userName,
@@ -70,11 +74,14 @@ UserSchema.methods.genrateAccessToken = function () {
     },process.env.ACCESS_TOKEN_SECRET,{
         expiresIn : process.env.ACCESS_TOKEN_EXPIRY
     })
+    
 }
+
+
 
 UserSchema.methods.refreshAccessToken = function () {
 
-    jwt.sign({
+  return  jwt.sign({
         _id : this._id ,
 
     },process.env.REFRESH_TOKEN_SECRET,{
