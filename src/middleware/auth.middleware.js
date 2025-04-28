@@ -4,7 +4,7 @@ import { AsyncHandler } from "../utils/AsyncHandler.js";
 import jwt from 'jsonwebtoken'
 
 
-export const verifyJWT = AsyncHandler((req , res , next)=>{
+export const verifyJWT = AsyncHandler(async (req , res , next)=>{
 
     const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer" , "");
 
@@ -18,7 +18,7 @@ export const verifyJWT = AsyncHandler((req , res , next)=>{
     throw new ApiError(409 , "Unauthorized user");
    }
 
-   const User = user.findById(decodedToken._id);
+   const User = await user.findById(decodedToken._id);
 
    if(!User){
     throw new ApiError(409 , "Invalid Access Token");
