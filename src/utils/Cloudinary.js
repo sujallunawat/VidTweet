@@ -26,6 +26,7 @@ dotenv.config({
                 resource_type:"auto" ,
          })
          console.log(`FILE UPLOADED SUCCESSFULLY`)
+         fs.unlinkSync(localpathfile)
          return response
         } catch (error) {
             fs.unlinkSync(localpathfile)
