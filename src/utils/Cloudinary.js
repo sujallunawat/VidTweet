@@ -34,6 +34,38 @@ dotenv.config({
         }
 
     }
+
+    
+    const deleteFromCloudinary = async function (imageUrl){
+
+        if(!imageUrl){
+            console.log(` NO IMAGE IS PRESENT  `);
+                return ""
+        }
+        const imageArray = imageUrl.split('/');
+
+        console.log(imageArray);
+
+        const imageName = imageArray[imageArray.length - 1];
+
+        const image = imageName.split('.')[0];
+
+        console.log(image);
+
+        try {
+            if(!image) {
+                console.log(` NO IMAGE IS PRESENT  `);
+                return ""
+            }
+          const response =  await cloudinary.uploader.destroy(image);
+         console.log(`IMAGE DELETED SUCCESSFULLY`)
+         return response
+        } catch (error) {
+            console.error(`Cloudinary ERROR ${error}`)
+            return ""
+        }
+
+    }
     
 
-export {uploadOnCloudinary}
+export {uploadOnCloudinary , deleteFromCloudinary}
