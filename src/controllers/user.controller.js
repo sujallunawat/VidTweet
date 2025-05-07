@@ -4,6 +4,7 @@ import { user } from "../models/user.model.js";
 import { uploadOnCloudinary , deleteFromCloudinary } from "../utils/Cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import { subscription } from "../models/subscription.model.js";
 
 async function genrateAccessAndRefreshToken(id) {
   try {
@@ -380,6 +381,76 @@ const updateUserCoverImage = AsyncHandler(async(req , res) =>{
     .json(new ApiResponse(200 , "CoverImage updated Successfully" , true , User))
 })
 
+
+
+const getUserChannelProfile = AsyncHandler(async (req, res) => {
+  const { userName } = req.params;
+  console.log("userName  : " , userName);
+  if (!userName?.trim()) {
+    throw new ApiError(400, "Channel not found");
+  }
+
+  const Channel = await user.aggregate([
+    {
+      $match: {
+        userName: userName.toLowerCase(),
+      }
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers"
+      }
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribeTo"
+      }
+    },
+    {
+      $addFields: {
+        subscribersCount: { $size: "$subscribers" },
+        channelSubscribedToCount: { $size: "$subscribeTo" },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+            then: true,
+            else: false
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        fullName: 1,
+        userName: 1,
+        email: 1,
+        subscribersCount: 1,
+        channelSubscribedToCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1,
+      }
+    }
+  ]);
+
+  // if (!Channel?.length) {
+  //   throw new ApiError(404, "Channel not found");
+  // }
+
+  console.log(Channel);
+
+  return res.status(200).json(
+    new ApiResponse(200, "Channel fetched successfully", true, Channel[0])
+  );
+});
+
+
 export {
   registerUser,
   loginUser,
@@ -390,4 +461,5 @@ export {
   updateAccountDetails,
   updateUserAvater,
   updateUserCoverImage,
+  getUserChannelProfile,
 };
