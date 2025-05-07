@@ -1,10 +1,11 @@
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import { user } from "../models/user.model.js";
+import { user, user } from "../models/user.model.js";
 import { uploadOnCloudinary , deleteFromCloudinary } from "../utils/Cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { subscription } from "../models/subscription.model.js";
+import mongoose from "mongoose";
 
 async function genrateAccessAndRefreshToken(id) {
   try {
@@ -451,6 +452,51 @@ const getUserChannelProfile = AsyncHandler(async (req, res) => {
 });
 
 
+const getWatchHistory =  AsyncHandler(async (req , req)=>{
+
+  const User = await user.aggregate([
+    {
+        $match : {
+          _id : new  mongoose.Types.ObjectId(req.user._id),
+        }
+    },
+    {
+      $lookup:{
+        from:"videos",
+        localField:"watchHistory",
+        foreignField:"_id",
+        as:"watchHistory",
+        pipeline:[
+          {
+            $lookup:{
+              from:"users",
+              localField:"owner",
+              foreignField:"_id",
+              as:"owner",
+              pipeline:[
+                {
+                  $project:{
+                    FullName:1,
+                    userName:1,
+                    avatar:1,
+                  }
+                }
+              ]
+            },
+          },{
+            $addFields:{
+              owner:{
+                $first : "$owner"
+              }
+            }
+          }
+        ]
+      },
+    },
+  ])
+
+})
+
 export {
   registerUser,
   loginUser,
@@ -462,4 +508,5 @@ export {
   updateUserAvater,
   updateUserCoverImage,
   getUserChannelProfile,
+  getWatchHistory,
 };
