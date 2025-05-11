@@ -1,6 +1,6 @@
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import { user, user } from "../models/user.model.js";
+import { user } from "../models/user.model.js";
 import { uploadOnCloudinary , deleteFromCloudinary } from "../utils/Cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
@@ -155,7 +155,7 @@ const logoutUser = AsyncHandler(async (req, res) => {
   const User = await user.findByIdAndUpdate(
     req.user._id,
     {
-      $set: { refreshToken: undefined },
+      $unset: { refreshToken: 1 },
     },
     {
       new: true,
@@ -452,7 +452,7 @@ const getUserChannelProfile = AsyncHandler(async (req, res) => {
 });
 
 
-const getWatchHistory =  AsyncHandler(async (req , req)=>{
+const getWatchHistory =  AsyncHandler(async (req , res)=>{
 
   const User = await user.aggregate([
     {
