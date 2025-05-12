@@ -17,7 +17,6 @@ const getAllVideos = AsyncHandler(async (req, res) => {
       sortType = "desc",
       userId,
     } = req.query;
-    //TODO: get all videos based on query, sort, pagination
 
     if (!req.user) {
       throw new ApiError(401, "User needs to be logged in");
@@ -78,8 +77,9 @@ const getAllVideos = AsyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, videos, "Videos fetched successfully"));
+      .json(new ApiResponse(200,  "Videos fetched successfully" , true , videos));
   });
+  
 
 const publishAVideo = AsyncHandler(async (req, res) => {
     const { title, description, owner, duration } = req.body;
@@ -135,30 +135,110 @@ const publishAVideo = AsyncHandler(async (req, res) => {
   
   return res
       .status(201)
-      .json(new ApiResponse(201, videoDoc, "Video published Successfully"));
+      .json(new ApiResponse(201,  "Video published Successfully" , true , videoDoc));
   
   
   });
 
-const getVideoById = AsyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    //TODO: get video by id
-})
+  const getVideoById = AsyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+  
+    console.log(videoId) 
+    // Validate if the provided videoId is a valid MongoDB ObjectId
+    if (!isValidObjectId(videoId)) {
+      throw new ApiError(400, "Invalid video ID");
+    }
+  
+    // Find the video by ID and populate owner details
+    const Video = await video.findById(videoId).populate("owner", "name email");
+  
+    if (!Video) {
+      throw new ApiError(404, "Video not found");
+    }
+  
+    return res.status(200).json(new ApiResponse(200, Video, "Video fetched successfully"));
+  });
 
-const updateVideo = AsyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    //TODO: update video details like title, description, thumbnail
+  const updateVideo = AsyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+    const { title, description } = req.body;
+  
+   
+    if (!isValidObjectId(videoId)) {
+      throw new ApiError(400, "Invalid video ID");
+    }
+  
+    let updateData = { title, description };
+  
 
-})
+    if (req.file) {
+      const thumbnailLocalPath = req.file.path;
+  
+      if (!thumbnailLocalPath) {
+        throw new ApiError(400, "Thumbnail file is missing");
+      }
+  
+      const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+  
+      if (!thumbnail.url) {
+        throw new ApiError(400, "Error while uploading thumbnail");
+      }
+      updateData.thumbnail = thumbnail.url; 
+    }
+  
+    // Find and update the video
+    const updatedVideo = await video.findByIdAndUpdate(
+      videoId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+  
+    if (!updatedVideo) {
+      throw new ApiError(404, "Video not found");
+    }
+  
+    return res.status(200).json(new ApiResponse(200,  "Video updated successfully" , true ,  updatedVideo));
+  });
 
-const deleteVideo = AsyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    //TODO: delete video
-})
+  const deleteVideo = AsyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+  
 
-const togglePublishStatus = AsyncHandler(async (req, res) => {
-    const { videoId } = req.params
-})
+    if (!isValidObjectId(videoId)) {
+      throw new ApiError(400, "Invalid video ID");
+    }
+  
+
+    const deletedVideo = await video.findByIdAndDelete(videoId);
+  
+    if (!deletedVideo) {
+      throw new ApiError(404, "Video not found");
+    }
+  
+    return res.status(200).json(new ApiResponse(200,  "Video deleted successfully" , true , {}));
+  });
+  
+  const togglePublishStatus = AsyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+  
+    // Validate if the provided videoId is a valid MongoDB ObjectId
+    if (!isValidObjectId(videoId)) {
+      throw new ApiError(400, "Invalid video ID");
+    }
+  
+    // Find the video
+    const Video = await video.findById(videoId);
+  
+    if (!Video) {
+      throw new ApiError(404, "Video not found");
+    }
+  
+    // Toggle the published status
+    Video.isPublished = !Video.isPublished;
+    await Video.save();
+  
+    return res.status(200).json(new ApiResponse(200, "Video publish status toggled successfully" , true , Video));
+  });
 
 export {
     getAllVideos,
