@@ -14,4 +14,4 @@ const TweetSchema = new Schema({
 
 
 
-export default tweet = mongoose.model("Tweet" , TweetSchema);
+export const tweet = mongoose.model("Tweet" , TweetSchema);
